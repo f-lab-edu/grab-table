@@ -1,6 +1,7 @@
 package com.onezerokang.grabtable.global.error;
 
 import com.onezerokang.grabtable.global.common.ErrorResponse;
+import com.onezerokang.grabtable.global.error.exception.InternalServerError;
 import com.onezerokang.grabtable.global.error.exception.InvalidValueException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,7 +26,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpectedException(Exception e) {
         log.error("handleUnexpectedException", e);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorResponse.of(e));
+        InternalServerError ise = new InternalServerError();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorResponse.of(ise));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
