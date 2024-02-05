@@ -1,6 +1,7 @@
 package com.onezerokang.grabtable.global.error;
 
 import com.onezerokang.grabtable.global.common.ErrorResponse;
+import com.onezerokang.grabtable.global.error.exception.InvalidValueException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -31,9 +32,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         log.error("handleMethodArgumentNotValidException", e);
+        InvalidValueException ie = new InvalidValueException("유효하지 않은 Request Body 입니다.");
         List<ValidationError> errors = e.getBindingResult().getFieldErrors().stream().map(ValidationError::of).toList();
-        String errorCode = e.getClass().getSimpleName().replace("Exception", "");
-        String message = "잘못된 매개변수입니다.";
-        return ResponseEntity.status(e.getStatusCode()).body(new ErrorResponse(e.getStatusCode().value(), message, errorCode, errors));
+        return ResponseEntity.status(e.getStatusCode()).body(new ErrorResponse(ie.getHttpStatus().value(), ie.getMessage(), ie.getErrorCode(), errors));
     }
 }
