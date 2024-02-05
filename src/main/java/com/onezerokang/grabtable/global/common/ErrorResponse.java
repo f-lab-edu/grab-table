@@ -1,10 +1,13 @@
 package com.onezerokang.grabtable.global.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.onezerokang.grabtable.global.error.ApiException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 
 import java.util.List;
@@ -19,6 +22,19 @@ public class ErrorResponse {
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<ValidationError> errors;
+
+    public static ErrorResponse of(Exception e) {
+        return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "내부 서버 오류", "InternalServerError");
+    }
+
+    public static ErrorResponse of(ApiException e) {
+        return new ErrorResponse(e.getHttpStatus().value(), e.getMessage(), e.getErrorCode());
+    }
+
+    public static ErrorResponse of(ApiException e, BindingResult bindingResult) {
+        List<ValidationError> errors = bindingResult.getFieldErrors().stream().map(ValidationError::of).toList();
+        return new ErrorResponse(e.getHttpStatus().value(), e.getMessage(), e.getErrorCode(), errors);
+    }
 
     @Getter
     @Builder
